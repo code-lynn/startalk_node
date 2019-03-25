@@ -1,0 +1,14 @@
+/**
+ * 启动文件
+ */
+
+var app = require('../server');
+var nodeConfig = require('../node_config');
+var http = require('http');
+
+var port = process.env.PORT || nodeConfig.port;
+app.set('port', port);
+
+http.createServer(app).listen(port);
+console.log('start server on 5000');
+
