@@ -14,92 +14,141 @@
     - node@>=7.6.0
     - npm@>=3.0.0
     - pm2@>=2.0.0(全局安装)
-- 服务器直接部署策略和本地上传服务器部署策略二者选其一即可
-- 建议先从github上fork到自己的git仓库，顺便点击下Star,然后down到本地去修改配置，查看无误后提交到自己的仓库，以便查看修改记录，再参考服务器直接部署策略进行部署。
-- 您的
+
+- 如果您具备本地开发条件，本地电脑安装了node，git等环境配置，则建议先从github上，将startalk_web和startalk_web_sdk项目fork到自己的git仓库，然后再git clone到本地去修改配置，查看无误后提交到自己的仓库，以便查看修改记录，再参考服务器直接部署策略进行部署。
+- 如果您不具备本地开发条件，则建议您直接采用以下服务器直接部署策略。
+- 以下是服务器直接部署策略
 
 ## 服务器直接部署策略
 
-### 下载代码到服务器
-- 先ssh登录服务器，进入指定文件夹下载源码
-
+### 一、下载代码到服务器
+- 登录服务器后，在download目录下下载源码,然后将项目copy到startalk目录下进行操作。
 ```
     cd /startalk/download
-    git clone [startalk_web_sdk git地址]
-    git clone [startalk_web git地址]
-    git clone [startalk_node git地址]
-    cp startalk_web_sdk /startalk/startalk_web_sdk
-    cp startalk_web /startalk/startalk_web
-    cp startalk_node /startalk/startalk_node
+    git clone https://github.com/qunarcorp/startalk_web_sdk.git
+    git clone https://github.com/qunarcorp/startalk_web.git
+    git clone https://github.com/qunarcorp/startalk_node.git
+    cp -rf  startalk_web_sdk /startalk/startalk_web_sdk
+    cp -rf startalk_web /startalk/startalk_web
+    cp -rf startalk_node /startalk/startalk_node
 ```
-### IM SDK项目
 
-#### 一、安装依赖
+### 二、服务器环境安装(root用户)
+- 进入下载目录
+```
+    cd /startalk/download
+```
+- 安装node：
+```
+    wget https://npm.taobao.org/mirrors/node/v8.6.0/node-v8.6.0-linux-x64.tar.xz
+    tar -xvf  node-v8.6.0-linux-x64.tar.xz
+    cd  node-v8.6.0-linux-x64/bin
+```
+- 执行以下命令，若显示 v8.6.0 ，则表明安装成功
+```
+    ./node -v
+```
+- 配置软连接，便于全局使用 node npm命令
+```
+    ln -s /startalk/download/node-v8.6.0-linux-x64/bin/node /usr/local/bin/node
+    ln -s /startalk/download/node-v8.6.0-linux-x64/bin/npm /usr/local/bin/npm
+```
+- 分别执行以下命令，若返回版本号，则表示配置成功
+```
+    node -v
+    npm -v
+```
+- 安装pm2
+```
+    npm install -g pm2
+```
+- 配置软连接，便于全局使用 pm2命令
+```
+    ln -s /startalk/download/node-v8.6.0-linux-x64/bin/pm2 /usr/local/bin/pm2
+```
+- 执行以下命令，若返回版本号，则表示配置成功
+```
+    pm2 -v
+```
+
+### 三、startalk_web_sdk项目配置
+
+#### 1、安装依赖
 ```
     cd /startalk/startalk_web_sdk
     npm install 
 ```
-#### 二、修改配置
-- 修改startalk_sdk项目目录下的 sdk_config.js 文件
-```
-    vim /startalk/startalk_web_sdk/sdk_config.js
-    :wq 保存退出
-```
-- 将后台部署后生成的导航链接，粘贴到浏览器中访问，查看返回的json数据，找到相同key对应的value填入即可
-- sdk_config.js
-    - pub_key_fullkey：公钥
-    - "domain":"qtalk.test.org",//公司域名
+#### 2、修改配置
+- 修改startalk_web_sdk项目目录下的 sdk_config.js 文件
+- 先将后台部署后生成的导航链接，粘贴到浏览器中访问，查看浏览器中返回的json数据
+- 若浏览器查看json数据不清晰，可以打开 https://www.json.cn，将返回数据粘贴到左侧窗口，右侧会自动生成解析后的json数据
+- 公钥pub_key_fullkey获取方法：
+    - 将导航链接返回数据中的javaUrl，拼接上 /qtapi/nck/rsa/get_public_key.do ，再粘贴到浏览器中访问
+    - 在返回数据中，找到pub_key_fullkey对应的值，粘贴到配置文件中pub_key_fullkey后即可
+- 配置文件sdk_config.js说明：
+    - "domain":"",//公司域名
     - "pub_key_fullkey":"",//公钥
     - "fileurl":"",//静态文件
     - "javaurl":"",//后台接口 package接口
     - "httpurl":"",//后台接口
     - "apiurl":"",//后台接口
-- pub_key_fullkey获取方法
-    - 将后台部署完成后生成的导航地址放到浏览器中访问，会返回json数据，读取baseaddess/javaurl的值
-    - 将导航里的javaUrl + /qtapi/nck/rsa/get_public_key.do，粘贴到浏览器访问
-    - 将返回数据data/pub_key_fullkey的值粘贴到配置文件即可
+- 编辑配置文件，找到导航链接返回数据中相同key字段对应的value值，填入到config文件中即可
+```
+    vim /startalk/startalk_web_sdk/sdk_config.js
+```
+- 编辑完成后，请仔细检查配置文件格式，在末行模式下，输入以下命令,保存退出vim编辑
+```
+    esc键
+    :wq
+    回车
+```
 
-#### 三、prod打包
+#### 3、prod打包
+- 执行build操作后，会在prd目录下生成 qtalk_web_sdk@version.js 文件
+- 然后拷贝到node项目的public文件夹下，用于html引入
 ```
     npm run build:prod
-    cp -rf startalk/startalk_web_sdk/prd /startalk/startalk_node/public
+    cp -rf /startalk/startalk_web_sdk/prd/* /startalk/startalk_node/public
 ```
-- 执行build操作后，会在prd目录下生成 qtalk_web_sdk@version.js 文件，拷贝到node项目的public文件夹下，用于html引入。
 
-### startalk_web项目
+### 四、startalk_web项目配置
 
-#### 一、安装依赖
+#### 1、安装依赖
 ```
     cd /startalk/startalk_web
     npm install 
 ```
 
-#### 二、修改配置
+#### 2、修改配置
 - 修改startalk_web项目目录下的 web_config.js 文件
+- 先将后台部署后生成的导航链接，粘贴到浏览器中访问，查看浏览器中返回的json数据
+- 若浏览器查看json数据不清晰，可以打开 https://www.json.cn，将返回数据粘贴到左侧窗口，右侧会自动生成解析后的json数据
+- 配置文件web_config.js说明：
+    - "domain":"",//公司域名
+    - "websocket":"",//ws服务器及端口
+    - "javaurl":"",//后台接口 package接口
+    - "emails":"darlyn"//email后缀
+- 编辑配置文件，找到导航链接返回数据中相同key字段对应的value值，填入到config文件中即可
 ```
     vim /startalk/startalk_web/web_config.js
-    :wq 保存退出
 ```
-- 将后台部署后生成的导航链接，粘贴到浏览器中访问，查看返回的json数据，找到相同key对应的value填入即可
-- config
-    - host:ws服务器及端口
-    - maType：平台类型 web端为6
-    - "domain":"qtalk.test.org",//公司域名
-    - "fileurl":"",//静态文件
-    - "javaurl":"",//后台接口 package接口
-    - "httpurl":"",//后台接口
-    - "apiurl":"",//后台接口
-    - "emails":"darlyn"//email后缀
+- 编辑完成后，请仔细检查配置文件格式，在末行模式下，输入以下命令,保存退出vim编辑
+```
+    esc键
+    :wq
+    回车
+```
 
-#### 三、prod打包
+#### 3、prod打包
+- 执行build操作，分别在prd/js和prd/css目录下生成 index@version.js 和index@version.css文件
+- 然后拷贝到node项目的public文件夹下，用于html引入
 ```
     npm run build:prod
-    cp -rf startalk/startalk_web/prd/js /startalk/startalk_node/public
-    cp -rf startalk/startalk_web/prd/css /startalk/startalk_node/public
+    cp -rf /startalk/startalk_web/prd/js/* /startalk/startalk_node/public
+    cp -rf /startalk/startalk_web/prd/css/* /startalk/startalk_node/public
 ```
-- 执行build操作后，会分别在prd/js和prd/css目录下生成 index@version.js 和index@version.css文件，拷贝到node项目的public文件夹下，用于html引入。
 
-### startalk_node项目
+### 五、startalk_node项目配置、启动服务
 
 #### 一、安装依赖
 ```
@@ -108,254 +157,49 @@
 ```
 
 #### 二、查看 js、css、sdk文件导入
+- 在 startalk_web_sdk项目和startalk_web项目配置中，已经将项目所需的qtalk_web_sdk@version.js、index@version.js、index@version.css等文件复制到了该项目public文件夹下
+- 执行以下命令，查看是否copy成功，并且记录相应版本号，便于配置node_config.js文件
 ```
     cd /startalk/startalk_node/public
     ls
 ```
-- 将 startalk_sdk项目中prd/qtalk_web_sdk@version.js文件复制到node项目public文件夹下。
-- 将 startalk_web项目中prd/js/index@version.js文件和prd/css/index@version.css复制到node项目public文件夹下。
-- ls 查看是否拷贝成功
 
 #### 三、修改配置
-- 修改startalk_web项目目录下的 node_config.js 文件
-- config
+- 修改startalk_node项目目录下的 node_config.js 文件
+- node_config.js文件说明：
     - port：服务端口
-     - web：
-        - title:项目标题
-        - appId:web项目入口ID
-        - stycss:web项目 css路径--public中的css文件名
-        - scrcss:web项目 css路径--public中的css文件名（没有第二个css可不填）
-        - sdkjs: sdk路径--public中的sdk文件名
-        - scrjs: web项目 cjs路径--public中的js文件名
-        - ...
-
-#### 四、服务器环境安装
-- cd /startalk/download/
-- 安装node：
-    - 方法一：sudo yum install nodejs
-    - node -v 查看版本是否满足，删除yum安装的node，采用方法二安装
-    >yum安装注意node版本，
-    - 方法二：
-        - 下载nodejs：
-        ```
-        wget https://npm.taobao.org/mirrors/node/v8.6.0/node-v8.6.0-linux-x64.tar.xz
-        ```
-        - 解压：
-        ```
-        tar -xvf  node-v8.6.0-linux-x64.tar.xz
-        ```
-        - 进入解压目录下的 bin 目录，执行 ls 命令，检查是否安装成功
-        ```
-        cd  node-v8.6.0-linux-x64/bin && ls
-        ```
-        - 测试
-        ```
-        ./node -v
-        ```
-        - root用户：node环境配置
-        ```
-        vi /etc/profile
-        ```
-        - 在最下面加入
-        ```
-        #set for nodejs 
-　　　　　export NODE_HOME=/usr/local/node  
-　　　　　export PATH=$NODE_HOME/bin:$PATH 
-        ```
-        - 保存并退出，使配置文件生效
-        ```
-        :wq
-        source /etc/profile
-        ```
-        - 这样就可以使用node命令了，
-        - 若还不行，则尝试使用软连接
-
-- 安装pm2：
+    - web：
+        - title:自定义项目标题
+        - stycss:web项目 css路径--public文件夹下的的index@version.css文件名
+        - scrcss:web项目 css路径--public文件夹下的的css文件名（没有第二个css可不填）
+        - sdkjs: sdk路径--public文件夹下的qtalk_web_sdk@version.js文件名
+        - scrjs: web项目 cjs路径--public文件夹下的的index@version.js文件名
+- 编辑配置文件，根据之前记录下来的js和css文件名，分别填入到config文件中即可
 ```
-sudo npm install -g pm2
+    vim /startalk/startalk_node/node_config.js
+```
+- 编辑完成后，请仔细检查配置文件格式，在末行模式下，输入以下命令,保存退出vim编辑
+```
+    esc键
+    :wq
+    回车
 ```
 
-- 若安装完成pm2后，仍无法使用此命令，可尝试引入软连接
-    - pm2 软连接 ：
-        - ll 查看目录下引入的软连接
-        - 如：sudo ln ./pm2 /usr/local/bin/pm2 引入软连接
-
-#### 五、服务器代码上传与项目启动
+#### 五、项目启动与预览
+- 使用pm2启动node项目
 ```
-cd /startalk/startalk_node
-sudo pm2 start ./bin/start --watch
-sudo pm2 list 
-sudo pm2 show [id]
+    cd /startalk/startalk_node
+    pm2 start ./bin/start --watch
 ```
-- pm2启动项目执行list命令查看id，再执行show命令查看启动状态
-- 项目启动成功后就可以在浏览器输入服务器名+端口访问了
+- 项目启动成功后，就可以在浏览器输入[当前服务器IP:端口]访问了
 
-## 本地上传服务器部署策略
-
-### IM SDK项目
-
-#### 一、将项目克隆到本地
-
-- 克隆项目：git clone [git地址]
-- 安装依赖：npm install
-
-#### 二、修改配置
-
-- 修改startalk_sdk项目目录下的 sdk_config.js 文件
-- 将后台部署后生成的导航链接，粘贴到浏览器中访问，查看返回的json数据，找到相同key对应的value填入即可
-- sdk_config.js
-    - pub_key_fullkey：公钥
-    - "domain":"qtalk.test.org",//公司域名
-    - "pub_key_fullkey":"",//公钥
-    - "fileurl":"",//静态文件
-    - "javaurl":"",//后台接口 package接口
-    - "httpurl":"",//后台接口
-    - "apiurl":"",//后台接口
-- pub_key_fullkey获取方法
-    - 将后台部署完成后生成的导航地址放到浏览器中访问，会返回json数据，读取baseaddess/javaurl的值
-    - 将导航里的javaUrl + qtapi/nck/rsa/get_public_key.do，粘贴到浏览器访问
-    - 将返回数据data/pub_key_fullkey的值粘贴到配置文件即可
-
-#### 三、本地测试访问
-
-- 本地启动： npm start  
-- 本地访问测试：http://127.0.0.1:5001/qtalk_web_sdk@local.js
-- 若本地调试接口会涉及跨域，可通过配置ngx+host解决
-
-#### 四、本地prod打包
-
-- prod打包：npm run build:prod
->执行build操作后，会在prd目录下生成 qtalk_web_sdk@version.js 文件，用于node项目html引入
-
-### startalk_web项目
-
-#### 一、将项目克隆到本地
-
-- 克隆项目：git clone [git地址]
-- 安装依赖：npm install
-
-#### 二、修改配置
-- 修改startalk_web项目目录下的 web_config.js 文件
-- 将后台部署后生成的导航链接，粘贴到浏览器中访问，查看返回的json数据，找到相同key对应的value填入即可
-- config
-    - host:ws服务器及端口
-    - maType：平台类型 web端为6
-    - "domain":"qtalk.test.org",//公司域名
-    - "fileurl":"",//静态文件
-    - "javaurl":"",//后台接口 package接口
-    - "httpurl":"",//后台接口
-    - "apiurl":"",//后台接口
-    - "emails":"darlyn"//email后缀
-
-#### 三、本地测试访问
-- 本地启动： npm start  
-- 本地访问测试：http://127.0.0.1:5002
-- 若本地调试接口会涉及跨域，可通过配置ngx+host解决
-
-#### 四、本地prod打包
-- prod打包：npm run build:prod
->执行build操作后，会分别在prd/js和prd/css目录下生成 index@version.js 和index@version.css文件，用于node项目html引入
-
-### startalk_node项目
-
-#### 一、将项目克隆到本地
-- 克隆项目：git clone [git地址]
-- 安装依赖：npm install
-
-#### 二、js、css、sdk文件导入
-- 将 startalk_sdk项目中prd/qtalk_web_sdk@version.js文件复制到node项目public文件夹下。
-- 将 startalk_web项目中prd/js/index@version.js文件和prd/css/index@version.css复制到node项目public文件夹下。
-
-#### 三、修改配置
-- 修改startalk_web项目目录下的 node_config.js 文件
-- config
-    - port：服务端口
-     - web：
-        - title:项目标题
-        - appId:web项目入口ID
-        - stycss:web项目 css路径
-        - scrcss:web项目 css路径
-        - sdkjs: sdk路径
-        - scrjs: web项目 cjs路径
-        - ...
-
-#### 四、本地测试访问
-- 本地启动： npm start  
-- 本地访问测试：http://127.0.0.1:5000
-- 若本地调试接口会涉及跨域，可通过配置ngx+host解决
-
-#### 五、服务器环境安装
-- ssh@darlyn 登录服务器 输入密码
-- cd /startalk/download/
-- 安装node：
-    - 方法一：sudo yum install nodejs
-    - node -v 查看版本是否满足，删除yum安装的node，采用方法二安装
-    >yum安装注意node版本，
-    - 方法二：
-        - 下载nodejs：
-        ```
-        wget https://npm.taobao.org/mirrors/node/v8.6.0/node-v8.6.0-linux-x64.tar.xz
-        ```
-        - 解压：
-        ```
-        tar -xvf  node-v8.6.0-linux-x64.tar.xz
-        ```
-        - 进入解压目录下的 bin 目录，执行 ls 命令，检查是否安装成功
-        ```
-        cd  node-v8.6.0-linux-x64/bin && ls
-        ```
-        - 测试
-        ```
-        ./node -v
-        ```
-        - root用户：node环境配置
-        ```
-        vi /etc/profile
-        ```
-        - 在最下面加入
-        ```
-        #set for nodejs 
-　　　　　export NODE_HOME=/usr/local/node  
-　　　　　export PATH=$NODE_HOME/bin:$PATH 
-        ```
-        - 保存并退出，使配置文件生效
-        ```
-        :wq
-        source /etc/profile
-        ```
-        - 这样就可以使用node命令了，
-        - 若还不行，则尝试使用软连接
-
-- 安装pm2：sudo npm install -g pm2
-
-- 若安装完成pm2后，仍无法使用此命令，可尝试引入软连接
-    - pm2 软连接 ：
-        - ll 查看目录下引入的软连接
-        - 如：sudo ln ./pm2 /usr/local/bin/pm2 引入软连接
-
-#### 六、服务器代码上传与项目启动
-- 本地上传：（建议上传代码前将node_nodules删掉）
-    - 在本地文件夹打开终端，执行如下命令
-    - scp -r ./startalk_node darlyn@darlyn:/startalk/download/startalk_node
-    - 登录服务器查看是否上传成功
-- github上传
-- 服务器操作：
-- cd /startalk/download/
-- 拷贝：cp -rf startalk_node/ ../startalk/startalk_node/
-- 进入项目目录：cd /startalk/startalk_node
-- ls 查看是否copy成功
-- 安装依赖：npm install
-- pm2启动：sudo pm2 start ./bin/start --watch
-    - 或者 sudo HOME=/root pm2 start /[path]/startalk_node/bin/start --watch
-- 项目启动成功后就可以在浏览器输入服务器名+端口访问了
-
-#### 七、其他辅助命令
+#### 七、其他辅助命令（部署成功后不需要执行）
 - sudo netstat -anlp| grep 5000  查看5000 端口的进程
 - sudo kill -9 [进程code] 杀死进程
 - df -h  查看不同分区的大小
 - rm -rf *** 删除文件夹
-- sudo pm2 start [启动文件]
-- sudo pm2 logs 查看pm2日志
-- sudo pm2 list 查看pm2进程list
-- sudo pm2 delete [id] 删除pm2进程
-- sudo pm2 show [id] 查看详情
+- pm2 start [启动文件]
+- pm2 log 查看pm2日志
+- pm2 list 查看pm2启动项目清单及状态
+- pm2 delete [id] 删除pm2进程
+- pm2 show [id] 查看项目启动详情
