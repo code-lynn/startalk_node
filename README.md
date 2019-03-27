@@ -127,7 +127,7 @@
     - "domain":"",//公司域名
     - "websocket":"",//ws服务器及端口
     - "javaurl":"",//后台接口 package接口
-    - "emails":"darlyn"//email后缀
+    - "emails":"darlyn"//email后缀（暂不支持，不用配置）
 - 编辑配置文件，找到导航链接返回数据中相同key字段对应的value值，填入到config文件中即可
 ```
     vim /startalk/startalk_web/web_config.js
