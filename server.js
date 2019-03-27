@@ -66,7 +66,7 @@ app.get('/', function (req, res) {
             //touch
             res.render('touch', {
                 title: nodeConfig.touch.title||"Startalk",
-                appId:nodeConfig.touch.appId||"app",
+                appId:"app",
                 stycss: nodeConfig.touch.stycss||"./default.css",
                 scrcss: nodeConfig.touch.scrcss||"./default.css",
                 scrjs: nodeConfig.touch.scrjs||"./default.js",
@@ -84,7 +84,7 @@ app.get('/', function (req, res) {
     //web
     res.render('web', {
         title: nodeConfig.web.title ||"Startalk",
-        appId:nodeConfig.web.appId ||"app",
+        appId:"app",
         stycss: nodeConfig.web.stycss ||"./default.css",
         scrcss: nodeConfig.web.scrcss ||"./default.css",
         scrjs: nodeConfig.web.scrjs ||"./default.js",
