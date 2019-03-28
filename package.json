@@ -12,6 +12,7 @@
   "license": "BSD",
   "dependencies": {
     "express": "^4.7.2",
-    "express-handlebars": "^3.0.2"
+    "express-handlebars": "^3.0.2",
+    "http-proxy-middleware": "^0.19.1"
   }
 }

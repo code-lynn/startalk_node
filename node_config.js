@@ -1,5 +1,9 @@
 module.exports = {
-    "port":5000,
+    "fileurl":"",
+    "javaurl":"",
+    "httpurl":"",
+    "apiurl":"",
+    "searchurl":"",
     "web":{
         "title":'Startalk Web',
         "stycss": '',

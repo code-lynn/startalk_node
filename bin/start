@@ -6,7 +6,7 @@ var app = require('../server');
 var nodeConfig = require('../node_config');
 var http = require('http');
 
-var port = process.env.PORT || nodeConfig.port;
+var port = process.env.PORT || 5000;
 app.set('port', port);
 
 http.createServer(app).listen(port);

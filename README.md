@@ -167,7 +167,6 @@
 #### 三、修改配置
 - 修改startalk_node项目目录下的 node_config.js 文件
 - node_config.js文件说明：
-    - port：服务端口
     - web：
         - title:自定义项目标题
         - stycss:web项目 css路径--public文件夹下的的index@version.css文件名
@@ -191,7 +190,9 @@
     cd /startalk/startalk_node
     pm2 start ./bin/start --watch
 ```
-- 项目启动成功后，就可以在浏览器输入[当前服务器IP:端口]访问了
+- 项目启动成功后，读取导航链接数据里面的startalkweb的值，粘贴到浏览器中访问即可
+- 输入测试账号和密码，即可享用web版通信工具。
+
 
 #### 七、其他辅助命令（部署成功后不需要执行）
 - sudo netstat -anlp| grep 5000  查看5000 端口的进程

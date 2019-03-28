@@ -1,5 +1,5 @@
 'use strict';
-
+var proxy = require('http-proxy-middleware');
 var Promise = global.Promise || require('promise');
 var nodeConfig = require('./node_config');
 var path = require('path');
@@ -8,7 +8,7 @@ var express = require('express'),
     helpers = require('./lib/helpers');
 
 var app = express();
-
+var nodeConfig = require("./node_config");
 // 默认布局
 var hbs = exphbs.create({
     defaultLayout: 'main',
@@ -91,6 +91,35 @@ app.get('/', function (req, res) {
         sdkjs: nodeConfig.web.sdkjs ||"./default.js",
     });
 });
+//接口转发
+app.all('/newapi/*', proxy({
+    target: nodeConfig.httpurl,
+    changeOrigin: true, 
+    pathRewrite:{
+        '/newapi': '', // rewrite path
+    }
+}));
+app.all('/api/*', proxy({ 
+    target: nodeConfig.apiurl,
+    changeOrigin: true, 
+    pathRewrite:{
+        '/api': '', // rewrite path
+    }
+}));
+app.all('/package/*', proxy({ 
+    target: nodeConfig.javaurl,
+    changeOrigin: true, 
+    pathRewrite:{
+        '/package': '', // rewrite path
+    }
+}));
+app.all('/search/search.py', proxy({ 
+    target: nodeConfig.searchurl,
+    changeOrigin: true, 
+    pathRewrite:{
+        '/search/search.py': '', // rewrite path
+    }
+}));
 
 app.get('/echo/:message?', exposeTemplates, function (req, res) {
     res.render('echo', {
