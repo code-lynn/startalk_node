@@ -62,24 +62,24 @@ app.get('/', function (req, res) {
     var userAgent = req.headers["user-agent"];
     var i, len;
     for (i = 0, len = deviceArr.length; i < len; i++) {
-        if (userAgent.indexOf(deviceArr[i]) !== -1) {
-            //touch
-            res.render('touch', {
-                title: nodeConfig.touch.title||"Startalk",
-                appId:"app",
-                stycss: nodeConfig.touch.stycss||"./default.css",
-                scrcss: nodeConfig.touch.scrcss||"./default.css",
-                scrjs: nodeConfig.touch.scrjs||"./default.js",
-                sdkjs: nodeConfig.web.sdkjs ||"./default.js",
-                // yell --- helper.
-                helpers: {
-                    yell: function (msg) {
-                        return (msg + '!!!');
-                    }
-                }
-            });
-            return;
-        }
+        // if (userAgent.indexOf(deviceArr[i]) !== -1) {
+        //     //touch
+        //     res.render('touch', {
+        //         title: nodeConfig.touch.title||"Startalk",
+        //         appId:"app",
+        //         stycss: nodeConfig.touch.stycss||"./default.css",
+        //         scrcss: nodeConfig.touch.scrcss||"./default.css",
+        //         scrjs: nodeConfig.touch.scrjs||"./default.js",
+        //         sdkjs: nodeConfig.web.sdkjs ||"./default.js",
+        //         // yell --- helper.
+        //         helpers: {
+        //             yell: function (msg) {
+        //                 return (msg + '!!!');
+        //             }
+        //         }
+        //     });
+        //     return;
+        // }
     }
     //web
     res.render('web', {
