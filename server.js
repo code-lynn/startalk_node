@@ -113,6 +113,13 @@ app.all('/package/*', proxy({
         '/package': '', // rewrite path
     }
 }));
+app.all('/file/*', proxy({ 
+    target: nodeConfig.javaurl,
+    changeOrigin: true, 
+    pathRewrite:{
+        '/file': '', // rewrite path
+    }
+}));
 app.all('/search/search.py', proxy({ 
     target: nodeConfig.searchurl,
     changeOrigin: true, 
